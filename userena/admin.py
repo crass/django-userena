@@ -1,21 +1,24 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext as _
-from guardian.admin import GuardedModelAdmin
-
-from userena.models import UserenaSignup
+from django.utils.importlib import import_module
 from userena.utils import get_profile_model
+from . import settings
 
-class UserenaSignupInline(admin.StackedInline):
-    model = UserenaSignup
-    max_num = 1
+def get_class(path):
+    if path:
+        module_name, attr_name = path.rsplit('.', 1)
+        module = import_module(module_name)
+        return getattr(module, attr_name)
+    else:
+        return None
 
-class UserenaAdmin(UserAdmin, GuardedModelAdmin):
-    inlines = [UserenaSignupInline, ]
-    list_display = ('username', 'email', 'first_name', 'last_name',
-                    'is_staff', 'date_joined')
+UserenaUserAdmin = get_class(settings.USERENA_USERADMIN)
+if UserenaUserAdmin:
+    admin.site.unregister(User)
+    admin.site.register(User, UserenaUserAdmin)
 
-admin.site.unregister(User)
-admin.site.register(User, UserenaAdmin)
-admin.site.register(get_profile_model())
+ProfileAdmin = get_class(settings.USERENA_PROFILEADMIN)
+if ProfileAdmin:
+    profile_model = get_profile_model()
+    admin.site.unregister(profile_model)
+    admin.site.register(get_profile_model(), ProfileAdmin)
