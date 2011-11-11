@@ -21,4 +21,4 @@ ProfileAdmin = get_class(settings.USERENA_PROFILEADMIN)
 if ProfileAdmin:
     profile_model = get_profile_model()
     admin.site.unregister(profile_model)
-    admin.site.register(get_profile_model(), ProfileAdmin)
+    admin.site.register(profile_model, ProfileAdmin)
