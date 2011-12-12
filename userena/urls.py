@@ -9,10 +9,10 @@ from userena import settings as userena_settings
 urlpatterns = patterns('',
     # Signup, signin and signout
     url(r'^signup/$',
-       userena_views.signup,
+       userena_views.signup_view,
        name='userena_signup'),
     url(r'^signin/$',
-       userena_views.signin,
+       userena_views.signin_view,
        name='userena_signin'),
     url(r'^signout/$',
        auth_views.logout,
@@ -53,7 +53,7 @@ urlpatterns = patterns('',
 
     # Change email and confirm it
     url(r'^(?P<username>[\.\w]+)/email/$',
-       userena_views.email_change,
+       userena_views.email_change_view,
        name='userena_email_change'),
     url(r'^(?P<username>[\.\w]+)/email/complete/$',
        userena_views.direct_to_user_template,
@@ -64,7 +64,7 @@ urlpatterns = patterns('',
        {'template_name': 'userena/email_confirm_complete.html'},
        name='userena_email_confirm_complete'),
     url(r'^(?P<username>[\.\w]+)/confirm-email/(?P<confirmation_key>\w+)/$',
-       userena_views.email_confirm,
+       userena_views.email_confirm_view,
        name='userena_email_confirm'),
 
     # Disabled account
@@ -75,7 +75,7 @@ urlpatterns = patterns('',
 
     # Change password
     url(r'^(?P<username>[\.\w]+)/password/$',
-       userena_views.password_change,
+       userena_views.password_change_view,
        name='userena_password_change'),
     url(r'^(?P<username>[\.\w]+)/password/complete/$',
        userena_views.direct_to_user_template,
@@ -84,7 +84,7 @@ urlpatterns = patterns('',
 
     # Edit profile
     url(r'^(?P<username>[\.\w]+)/edit/$',
-       userena_views.profile_edit,
+       userena_views.profile_edit_view,
        name='userena_profile_edit'),
 
     # View profiles
