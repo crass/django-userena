@@ -90,3 +90,11 @@ USERENA_LANGUAGE_FIELD = getattr(settings,
 USERENA_WITHOUT_USERNAMES = getattr(settings,
                                     'USERENA_WITHOUT_USERNAMES',
                                     False)
+
+USERENA_USERADMIN = getattr(settings,
+                                    'USERENA_USERADMIN',
+                                    'userena.admin_base.UserenaUserAdmin')
+
+USERENA_PROFILEADMIN = getattr(settings,
+                                    'USERENA_PROFILEADMIN',
+                                    'userena.admin_base.UserenaProfileAdmin')

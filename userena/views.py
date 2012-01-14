@@ -22,7 +22,7 @@ from userena import settings as userena_settings
 
 from guardian.decorators import permission_required_or_403
 
-@secure_required
+
 def signup(request, signup_form=SignupForm,
            template_name='userena/signup_form.html', success_url=None,
            extra_context=None):
@@ -88,7 +88,8 @@ def signup(request, signup_form=SignupForm,
     return direct_to_template(request,
                               template_name,
                               extra_context=extra_context)
-@secure_required
+
+
 def activate(request, username, activation_key,
              template_name='userena/activate_fail.html',
              success_url=None, extra_context=None):
@@ -146,7 +147,7 @@ def activate(request, username, activation_key,
                                   template_name,
                                   extra_context=extra_context)
 
-@secure_required
+
 def email_confirm(request, username, confirmation_key,
                   template_name='userena/email_confirm_fail.html',
                   success_url=None, extra_context=None):
@@ -193,6 +194,7 @@ def email_confirm(request, username, confirmation_key,
                                   template_name,
                                   extra_context=extra_context)
 
+
 def direct_to_user_template(request, username, template_name,
                             extra_context=None):
     """
@@ -231,7 +233,7 @@ def direct_to_user_template(request, username, template_name,
                               template_name,
                               extra_context=extra_context)
 
-@secure_required
+
 def signin(request, auth_form=AuthenticationForm,
            template_name='userena/signin_form.html',
            redirect_field_name=REDIRECT_FIELD_NAME,
@@ -314,10 +316,7 @@ def signin(request, auth_form=AuthenticationForm,
                               extra_context=extra_context)
 
 
-
-@secure_required
-@permission_required_or_403('change_user', (User, 'username', 'username'))
-def email_change(request, username, email_form=ChangeEmailForm,
+def email_change(request, username, form=ChangeEmailForm,
                  template_name='userena/email_form.html', success_url=None,
                  extra_context=None):
     """
@@ -382,8 +381,7 @@ def email_change(request, username, email_form=ChangeEmailForm,
                               template_name,
                               extra_context=extra_context)
 
-@secure_required
-@permission_required_or_403('change_user', (User, 'username', 'username'))
+
 def password_change(request, username, template_name='userena/password_form.html',
                     pass_form=PasswordChangeForm, success_url=None, extra_context=None):
     """ Change password of user.
@@ -447,8 +445,7 @@ def password_change(request, username, template_name='userena/password_form.html
                               template_name,
                               extra_context=extra_context)
 
-@secure_required
-@permission_required_or_403('change_profile', (get_profile_model(), 'user__username', 'username'))
+
 def profile_edit(request, username, edit_profile_form=EditProfileForm,
                  template_name='userena/profile_form.html', success_url=None,
                  extra_context=None, **kwargs):
@@ -526,6 +523,7 @@ def profile_edit(request, username, edit_profile_form=EditProfileForm,
                               extra_context=extra_context,
                               **kwargs)
 
+
 def profile_detail(request, username, template_name='userena/profile_detail.html', extra_context=None, **kwargs):
     """
     Detailed view of an user.
@@ -558,6 +556,7 @@ def profile_detail(request, username, template_name='userena/profile_detail.html
                               template_name,
                               extra_context=extra_context,
                               **kwargs)
+
 
 def profile_list(request, page=1, template_name='userena/profile_list.html',
                  paginate_by=50, extra_context=None, **kwargs):
@@ -621,3 +620,12 @@ def profile_list(request, page=1, template_name='userena/profile_list.html',
                                    extra_context=extra_context,
                                    template_object_name='profile',
                                    **kwargs)
+
+
+profile_edit_view = secure_required(permission_required_or_403('change_profile', (get_profile_model(), 'user__username', 'username'))(profile_edit))
+password_change_view = secure_required(permission_required_or_403('change_user', (User, 'username', 'username'))(password_change))
+email_change_view = secure_required(permission_required_or_403('change_user', (User, 'username', 'username'))(email_change))
+signin_view = secure_required(signin)
+email_confirm_view = secure_required(email_confirm)
+signup_view = secure_required(signup)
+activate_view = secure_required(activate)

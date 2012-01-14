@@ -27,7 +27,7 @@ ASSIGNED_PERMISSIONS = {
 class UserenaManager(UserManager):
     """ Extra functionality for the Userena model. """
 
-    def create_user(self, username, email, password, active=False,
+    def create_user(self, form_data, active=False,
                     send_email=True):
         """
         A simple wrapper that creates a new :class:`User`.
@@ -53,6 +53,10 @@ class UserenaManager(UserManager):
         :return: :class:`User` instance representing the new user.
 
         """
+        username, email, password = (form_data['username'],
+                                     form_data['email'],
+                                     form_data['password1'])
+        
         now = datetime.datetime.now()
 
         new_user = User.objects.create_user(username, email, password)
@@ -66,12 +70,7 @@ class UserenaManager(UserManager):
         try:
             new_profile = new_user.get_profile()
         except profile_model.DoesNotExist:
-            new_profile = profile_model(user=new_user)
-            new_profile.save(using=self._db)
-
-        # Give permissions to view and change profile
-        for perm in ASSIGNED_PERMISSIONS['profile']:
-            assign(perm[0], new_user, new_profile)
+            profile_model.objects.create_profile(new_user=new_user, form_data=form_data)
 
         # Give permissions to view and change itself
         for perm in ASSIGNED_PERMISSIONS['user']:
@@ -268,3 +267,16 @@ class UserenaBaseProfileManager(models.Manager):
             profiles = profiles.exclude(Q(privacy='closed') | Q(privacy='registered'))
         else: profiles = profiles.exclude(Q(privacy='closed'))
         return profiles
+    
+    def create_profile(self, new_user, form_data):
+        profile_data = {'user': new_user}
+        for field in self.model._meta.fields:
+            if form_data.has_key(field.name):
+                profile_data[field.name] = form_data.get(field.name)
+        
+        new_profile = self.model(**profile_data)
+        new_profile.save()
+        
+        # Give permissions to view and change profile
+        for perm in ASSIGNED_PERMISSIONS['profile']:
+            assign(perm[0], new_user, new_profile)
