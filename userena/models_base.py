@@ -164,6 +164,9 @@ else:
                                         resize_source=MUGSHOT_SETTINGS,
                                         help_text=_('A personal image displayed in your profile.'))
         
+        class Meta(UserenaBaseProfile.Meta):
+            abstract = True
+        
         def get_mugshot_url(self):
             """
             Returns the image containing the mugshot for the user.
