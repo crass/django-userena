@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.utils.hashcompat import sha_constructor
-from django.contrib.auth.models import SiteProfileNotAvailable
+from django.contrib.auth.models import User, SiteProfileNotAvailable
 from django.db.models import get_model
 
 from userena import settings as userena_settings
@@ -98,6 +98,21 @@ def generate_sha1(string, salt=None):
     hash = sha_constructor(salt+str(string)).hexdigest()
 
     return (salt, hash)
+
+def generate_valid_random_username():
+    """
+    Generate a random username that is valid.  A valid username is one that
+    does not already exist.
+
+    :return: A random valid username.
+
+    """
+    while True:
+        username = sha_constructor(str(random.random())).hexdigest()[:5]
+        try:
+            User.objects.get(username__iexact=username)
+        except User.DoesNotExist: break
+    return username
 
 def get_profile_model():
     """

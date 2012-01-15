@@ -6,7 +6,7 @@ from django.utils.hashcompat import sha_constructor
 
 from userena import settings as userena_settings
 from userena.models import UserenaSignup
-from userena.utils import get_profile_model
+from userena.utils import get_profile_model, generate_valid_random_username
 
 import random
 
@@ -96,13 +96,7 @@ class SignupFormOnlyEmail(SignupForm):
 
     def save(self):
         """ Generate a random username before falling back to parent signup form """
-        while True:
-            username = sha_constructor(str(random.random())).hexdigest()[:5]
-            try:
-                User.objects.get(username__iexact=username)
-            except User.DoesNotExist: break
-
-        self.cleaned_data['username'] = username
+        self.cleaned_data['username'] = generate_valid_random_username()
         return super(SignupFormOnlyEmail, self).save()
 
 class SignupFormTos(SignupForm):
