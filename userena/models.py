@@ -10,6 +10,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from userena.utils import get_gravatar, generate_sha1, get_protocol
 from userena.managers import UserenaManager, UserenaBaseProfileManager
+from userena.models_base import UserenaBaseProfile, UserenaMugshotBaseProfile
 from userena import settings as userena_settings
 
 from guardian.shortcuts import get_perms
