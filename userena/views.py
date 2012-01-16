@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.views.generic import list_detail
-from django.http import HttpResponseForbidden, Http404
+from django.http import HttpResponseForbidden, HttpResponseRedirect, Http404
 
 from userena.forms import (SignupForm, SignupFormOnlyEmail, AuthenticationForm,
                            ChangeEmailForm, EditProfileForm)
@@ -446,7 +446,7 @@ def password_change(request, username, template_name='userena/password_form.html
                               extra_context=extra_context)
 
 
-def profile_edit(request, username, edit_profile_form=EditProfileForm,
+def profile_edit(request, username=None, edit_profile_form=EditProfileForm,
                  template_name='userena/profile_form.html', success_url=None,
                  extra_context=None, **kwargs):
     """
@@ -459,6 +459,7 @@ def profile_edit(request, username, edit_profile_form=EditProfileForm,
 
     :param username:
         Username of the user which profile should be edited.
+        If none given and authenticated, use authenticated username.
 
     :param edit_profile_form:
 
@@ -490,6 +491,11 @@ def profile_edit(request, username, edit_profile_form=EditProfileForm,
         Instance of the ``Profile`` that is edited.
 
     """
+    if not username:
+        if request.user.is_authenticated():
+            username = request.user.username
+        else:
+            return HttpResponseRedirect(redirect_to=reverse('userena_signin'))
     user = get_object_or_404(User,
                              username__iexact=username)
 
@@ -524,12 +530,13 @@ def profile_edit(request, username, edit_profile_form=EditProfileForm,
                               **kwargs)
 
 
-def profile_detail(request, username, template_name='userena/profile_detail.html', extra_context=None, **kwargs):
+def profile_detail(request, username=None, template_name='userena/profile_detail.html', extra_context=None, **kwargs):
     """
     Detailed view of an user.
 
     :param username:
         String of the username of which the profile should be viewed.
+        If none given and authenticated, use authenticated username.
 
     :param template_name:
         String representing the template name that should be used to display
@@ -545,6 +552,11 @@ def profile_detail(request, username, template_name='userena/profile_detail.html
         Instance of the currently viewed ``Profile``.
 
     """
+    if not username:
+        if request.user.is_authenticated():
+            username = request.user.username
+        else:
+            return HttpResponseRedirect(redirect_to=reverse('userena_signin'))
     user = get_object_or_404(User,
                              username__iexact=username)
     profile = user.get_profile()
