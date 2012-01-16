@@ -200,13 +200,14 @@ class EditProfileForm(forms.ModelForm):
     last_name = forms.CharField(label=_(u'Last name'),
                                 max_length=30,
                                 required=False)
+    user_fields = ('first_name', 'last_name')
 
     def __init__(self, *args, **kw):
         super(EditProfileForm, self).__init__(*args, **kw)
-        # Put the first and last name at the top
-        new_order = self.fields.keyOrder[:-2]
-        new_order.insert(0, 'first_name')
-        new_order.insert(1, 'last_name')
+        # Put the user fields at the top
+        new_order = list(self.user_fields) + \
+                    [f for f in self.fields.keyOrder \
+                       if f not in self.user_fields]
         self.fields.keyOrder = new_order
 
     class Meta:
@@ -215,10 +216,10 @@ class EditProfileForm(forms.ModelForm):
 
     def save(self, force_insert=False, force_update=False, commit=True):
         profile = super(EditProfileForm, self).save(commit=commit)
-        # Save first and last name
+        # Save user fields
         user = profile.user
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
+        for user_field_name in self.user_fields:
+            setattr(user, user_field_name, self.cleaned_data[user_field_name])
         if commit:
             user.save()
 
