@@ -219,6 +219,7 @@ class EditProfileForm(forms.ModelForm):
         user = profile.user
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        user.save()
+        if commit:
+            user.save()
 
         return profile
