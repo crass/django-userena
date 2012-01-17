@@ -316,7 +316,7 @@ def signin(request, auth_form=AuthenticationForm,
                               extra_context=extra_context)
 
 
-def email_change(request, username, form=ChangeEmailForm,
+def email_change(request, username, email_form=ChangeEmailForm,
                  template_name='userena/email_form.html', success_url=None,
                  extra_context=None):
     """
