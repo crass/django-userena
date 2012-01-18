@@ -55,7 +55,8 @@ class UserenaManager(UserManager):
         """
         username, email, password = (form_data['username'],
                                      form_data['email'],
-                                     form_data['password1'])
+                                     form_data.get('password',
+                                        form_data.get('password1')))
         
         now = datetime.datetime.now()
 
