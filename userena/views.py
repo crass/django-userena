@@ -82,6 +82,12 @@ def signup(request, signup_form=SignupForm,
             if request.user.is_authenticated():
                 logout(request)
             return redirect(redirect_to)
+        
+        # If we should resend the activation when the email has allready been
+        # signed up and the email has been signed up.
+        signup = getattr(form, 'signup', None)
+        if userena_settings.USERENA_ACTIVATION_RESEND_ON_SIGNUP and signup:
+            signup.send_activation_email()
 
     if not extra_context: extra_context = dict()
     extra_context['form'] = form

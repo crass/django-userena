@@ -30,7 +30,17 @@ class SignupForm(forms.Form):
                                 error_messages={'invalid': _('Username must contain only letters, numbers, dots and underscores.')})
     email = forms.EmailField(widget=forms.TextInput(attrs=dict(attrs_dict,
                                                                maxlength=75)),
-                             label=_("Email"))
+                             label=_("Email"),
+                             error_messages={
+                                'unique_activated': _('This email address is already associated '
+                                                      'with an activated user account. Use the '
+                                                      '"Sign-in form" or "Forgot my password" links.'),
+                                'unique_unactivated': _('This email address is already associated'
+                                                        ' with a user account, but the account has not'
+                                                        ' been activated. An email with an activation'
+                                                        ' link was resent to you. Check that your '
+                                                        'spam filter did not catch this message.'),
+                             })
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict,
                                                            render_value=False),
                                 label=_("Create password"))
@@ -57,9 +67,19 @@ class SignupForm(forms.Form):
 
     def clean_email(self):
         """ Validate that the e-mail address is unique. """
-        if User.objects.filter(email__iexact=self.cleaned_data['email']):
-            raise forms.ValidationError(_('This email is already in use. Please supply a different email.'))
-        return self.cleaned_data['email']
+        try:
+            u = User.objects.select_related('userena_signup') \
+                            .get(email__iexact=self.cleaned_data['email'])
+        except User.DoesNotExist:
+            return self.cleaned_data['email']
+        
+        email_error_messages = self.fields['email'].error_messages
+        if userena_settings.USERENA_ACTIVATION_RESEND_ON_SIGNUP \
+           and not u.userena_signup.has_activated():
+            self.signup = u.userena_signup
+            raise forms.ValidationError(email_error_messages['unique_unactivated'])
+        
+        raise forms.ValidationError(email_error_messages['unique_unactivated'])
 
     def clean(self):
         """

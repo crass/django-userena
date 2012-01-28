@@ -64,6 +64,9 @@ class UserenaSignup(models.Model):
     def __unicode__(self):
         return '%s' % self.user.username
 
+    def has_activated(self):
+        return self.activation_key == userena_settings.USERENA_ACTIVATED
+
     def change_email(self, email):
         """
         Changes the email address for a user.
