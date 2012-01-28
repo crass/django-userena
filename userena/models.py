@@ -150,7 +150,7 @@ class UserenaSignup(models.Model):
         """
         expiration_days = datetime.timedelta(days=userena_settings.USERENA_ACTIVATION_DAYS)
         expiration_date = self.user.date_joined + expiration_days
-        if self.activation_key == userena_settings.USERENA_ACTIVATED:
+        if self.has_activated():
             return True
         if datetime.datetime.now() >= expiration_date:
             return True

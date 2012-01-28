@@ -113,13 +113,14 @@ class UserenaManager(UserManager):
             String containing the secret SHA1 for a valid activation.
 
         :return:
-            The newly activated :class:`User` or ``False`` if not successful.
+            The newly activated :class:`User`, ``True`` if already activated,
+            or ``False`` if not successful.
 
         """
         if SHA1_RE.search(activation_key):
             try:
-                userena = self.get(user__username=username,
-                                   activation_key=activation_key)
+                # There should be only one signup for this username.
+                userena = self.get(user__username=username)
             except self.model.DoesNotExist:
                 return False
             if not userena.activation_key_expired():
@@ -134,6 +135,8 @@ class UserenaManager(UserManager):
                                                          user=user)
 
                 return user
+            else:
+                return True
         return False
 
     def confirm_email(self, username, confirmation_key):

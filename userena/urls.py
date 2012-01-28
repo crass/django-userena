@@ -83,11 +83,17 @@ urlpatterns = patterns('',
        name='userena_password_change_complete'),
 
     # Edit profile
+    url(r'^profile/edit/$',
+       userena_views.profile_edit,
+       name='userena_profile_edit_user'),
     url(r'^(?P<username>[\.\w]+)/edit/$',
        userena_views.profile_edit_view,
        name='userena_profile_edit'),
 
     # View profiles
+    url(r'^profile/$',
+       userena_views.profile_detail,
+       name='userena_profile_detail_user'),
     url(r'^(?P<username>(?!signout|signup|signin)[\.\w]+)/$',
        userena_views.profile_detail,
        name='userena_profile_detail'),

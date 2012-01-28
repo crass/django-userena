@@ -132,9 +132,17 @@ def activate(request, username, activation_key,
         context. Default to an empty dictionary.
 
     """
+    redirect_to = None
     user = UserenaSignup.objects.activate_user(username, activation_key)
-    if user:
-        # Sign the user in.
+    
+    if not user:
+        if not extra_context: extra_context = dict()
+        return direct_to_template(request,
+                                  template_name,
+                                  extra_context=extra_context)
+    
+    if user is not True:
+        # Sign the user in, since he was just activated.
         auth_user = authenticate(identification=user.email,
                                  check_password=False)
         login(request, auth_user)
@@ -143,15 +151,12 @@ def activate(request, username, activation_key,
             messages.success(request, _('Your account has been activated and you have been signed in.'),
                              fail_silently=True)
 
-        if success_url: redirect_to = success_url % {'username': user.username }
-        else: redirect_to = reverse('userena_profile_detail',
-                                    kwargs={'username': user.username})
-        return redirect(redirect_to)
-    else:
-        if not extra_context: extra_context = dict()
-        return direct_to_template(request,
-                                  template_name,
-                                  extra_context=extra_context)
+        if success_url:
+            redirect_to = success_url % {'username': user.username }
+    
+    if redirect_to is None:
+        redirect_to = reverse('userena_profile_detail_user')
+    return redirect(redirect_to)
 
 
 def email_confirm(request, username, confirmation_key,
