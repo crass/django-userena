@@ -79,7 +79,7 @@ class SignupForm(forms.Form):
             self.signup = u.userena_signup
             raise forms.ValidationError(email_error_messages['unique_unactivated'])
         
-        raise forms.ValidationError(email_error_messages['unique_unactivated'])
+        raise forms.ValidationError(email_error_messages['unique_activated'])
 
     def clean(self):
         """
