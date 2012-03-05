@@ -8,6 +8,11 @@ from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.core.exceptions import ImproperlyConfigured
 
+try:
+    from django.utils.timezone import now
+except ImportError:
+    now = datetime.datetime.now
+
 from userena.utils import get_gravatar, generate_sha1, get_protocol
 from userena.managers import UserenaManager, UserenaBaseProfileManager
 from userena.models_base import UserenaBaseProfile, UserenaMugshotBaseProfile
@@ -85,7 +90,7 @@ class UserenaSignup(models.Model):
 
         salt, hash = generate_sha1(self.user.username)
         self.email_confirmation_key = hash
-        self.email_confirmation_key_created = datetime.datetime.now()
+        self.email_confirmation_key_created = now()
         self.save()
 
         # Send email for activation
@@ -152,7 +157,7 @@ class UserenaSignup(models.Model):
         expiration_date = self.user.date_joined + expiration_days
         if self.has_activated():
             return True
-        if datetime.datetime.now() >= expiration_date:
+        if now() >= expiration_date:
             return True
         return False
 

@@ -4,6 +4,11 @@ from django.contrib.auth.models import User, UserManager, Permission, AnonymousU
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
+try:
+    from django.utils.timezone import now
+except ImportError:
+    now = datetime.datetime.now
+
 from userena import settings as userena_settings
 from userena.utils import generate_sha1, get_profile_model
 from userena import signals as userena_signals
@@ -57,8 +62,6 @@ class UserenaManager(UserManager):
                                      form_data['email'],
                                      form_data.get('password',
                                         form_data.get('password1')))
-        
-        now = datetime.datetime.now()
 
         new_user = User.objects.create_user(username, email, password)
         new_user.is_active = active
